@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
@@ -70,7 +71,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("maze height/widht:", m.Height, m.Width)
+	startTime := time.Now()
+
+	switch searchType {
+	case "dfs":
+		m.SearchType = DFS
+		solveDFS(&m)
+	default:
+		fmt.Println("Invalid search type")
+		os.Exit(1)
+	}
+
+	if len(m.Solution.Actions) > 0 {
+		fmt.Println("Solution:")
+		//TODO print maze
+		fmt.Println("Solution is", len(m.Solution.Cells), "steps")
+		fmt.Println("Time to solve:", time.Since(startTime))
+	} else {
+		fmt.Println("No solution")
+	}
+
+	fmt.Println("Explored", len(m.Expolored), "nodes")
+}
+
+func solveDFS(m *Maze) {
+	var s DepthFirstSearch
+	s.Game = m
+	fmt.Println("Goal is", s.Game.Goal)
+	s.Solve()
 }
 
 func (g *Maze) Load(fileName string) error {
