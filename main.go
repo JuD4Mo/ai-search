@@ -84,7 +84,7 @@ func main() {
 
 	if len(m.Solution.Actions) > 0 {
 		fmt.Println("Solution:")
-		//TODO print maze
+		m.printMaze()
 		fmt.Println("Solution is", len(m.Solution.Cells), "steps")
 		fmt.Println("Time to solve:", time.Since(startTime))
 	} else {
@@ -92,6 +92,34 @@ func main() {
 	}
 
 	fmt.Println("Explored", len(m.Expolored), "nodes")
+}
+
+func (g *Maze) printMaze() {
+	for r, row := range g.Walls {
+		for c, col := range row {
+			if col.wall {
+				fmt.Print("#")
+			} else if g.Start.Row == col.State.Col && g.Start.Col == col.State.Col {
+				fmt.Print("A")
+			} else if g.Goal.Row == col.State.Row && g.Goal.Col == col.State.Col {
+				fmt.Print("B")
+			} else if g.inSolution(Point{r, c}) {
+				fmt.Print("*")
+			} else {
+				fmt.Print("")
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func (g *Maze) inSolution(x Point) bool {
+	for _, step := range g.Solution.Cells {
+		if step.Row == x.Row && step.Col == x.Col {
+			return true
+		}
+	}
+	return false
 }
 
 func solveDFS(m *Maze) {
