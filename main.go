@@ -84,9 +84,10 @@ func main() {
 
 	if len(m.Solution.Actions) > 0 {
 		fmt.Println("Solution:")
-		m.printMaze()
+		// m.printMaze()
 		fmt.Println("Solution is", len(m.Solution.Cells), "steps")
 		fmt.Println("Time to solve:", time.Since(startTime))
+		m.OutPutImage("image.png")
 	} else {
 		fmt.Println("No solution")
 	}
@@ -98,15 +99,15 @@ func (g *Maze) printMaze() {
 	for r, row := range g.Walls {
 		for c, col := range row {
 			if col.wall {
-				fmt.Print("#")
-			} else if g.Start.Row == col.State.Col && g.Start.Col == col.State.Col {
+				fmt.Print("█")
+			} else if g.Start.Row == col.State.Row && g.Start.Col == col.State.Col {
 				fmt.Print("A")
 			} else if g.Goal.Row == col.State.Row && g.Goal.Col == col.State.Col {
 				fmt.Print("B")
 			} else if g.inSolution(Point{r, c}) {
 				fmt.Print("*")
 			} else {
-				fmt.Print("")
+				fmt.Print(" ")
 			}
 		}
 		fmt.Println()
