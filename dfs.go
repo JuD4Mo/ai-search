@@ -114,6 +114,12 @@ func (dfs *DepthFirstSearch) Solve() {
 
 		dfs.Game.Expolored = append(dfs.Game.Expolored, currentNode.State)
 
+		//Build animation frame if appropiate.
+
+		if dfs.Game.Animate {
+			dfs.Game.OutPutImage(fmt.Sprintf("tmp/%06d.png", dfs.Game.NumExplored))
+		}
+
 		for _, x := range dfs.Neighbors(currentNode) {
 			if !dfs.ContainsState(x) {
 				if !inExplored(x.State, dfs.Game.Expolored) {

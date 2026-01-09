@@ -5,10 +5,14 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"image/png"
 	"io"
+	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/kmicki/apng"
 )
 
 const (
@@ -55,6 +59,12 @@ type Maze struct {
 	NumExplored int
 	Debug       bool
 	SearchType  int
+	Animate     bool
+}
+
+func init() {
+	_ = os.Mkdir("./tmp", os.ModePerm)
+	emptyTmp()
 }
 
 func main() {
@@ -63,6 +73,9 @@ func main() {
 
 	flag.StringVar(&maze, "file", "maze.txt", "maze file")
 	flag.StringVar(&searchType, "search", "dfs", "search type")
+	flag.BoolVar(&m.Debug, "debug", false, "write debugging info")
+	flag.BoolVar(&m.Animate, "animate", false, "produce animation")
+
 	flag.Parse()
 
 	err := m.Load(maze)
@@ -93,6 +106,12 @@ func main() {
 	}
 
 	fmt.Println("Explored", len(m.Expolored), "nodes")
+
+	if m.Animate {
+		fmt.Println("Building animation...")
+		m.OutPutAnimatedImage()
+		fmt.Println("Done")
+	}
 }
 
 func (g *Maze) printMaze() {
@@ -216,4 +235,48 @@ func (g *Maze) Load(fileName string) error {
 	}
 	g.Walls = rows
 	return nil
+}
+
+func (g *Maze) OutPutAnimatedImage() {
+	output := "./animation.png"
+
+	files, _ := os.ReadDir("./tmp")
+
+	var images []string
+	var delays []int
+
+	for _, file := range files {
+		images = append(images, fmt.Sprintf("./tmp/%s", file.Name()))
+		delays = append(delays, 30)
+	}
+
+	images = append(images, "./image.png")
+
+	a := apng.APNG{
+		Frames: make([]apng.Frame, len(images)),
+	}
+	out, _ := os.Create(output)
+	defer out.Close()
+
+	for i, s := range images {
+		in, err := os.Open(s)
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+
+		defer in.Close()
+
+		m, err := png.Decode(in)
+		if err != nil {
+			continue
+		}
+
+		a.Frames[i].Image = m
+	}
+
+	err := apng.Encode(out, a)
+	if err != nil {
+		log.Println(err)
+	}
 }

@@ -1,2 +1,5 @@
 image.png
-maze.txt
+*.txt
+tmp
+.png
+animation.png
